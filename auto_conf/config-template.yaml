@@ -233,12 +233,20 @@ nginx_config:
 
 etcd:
   host:
-    - "{{ etcd_host }}"
+    {% if not etcd_host: -%}
+    {%- set etcd_host = "http://127.0.0.1:2379" -%}
+    {%- endif -%}
+    {%- for item in etcd_host.split("\n") -%}
+    {% if item: -%}
+    - {{item}}
+    {% endif -%}
+    {% endfor %}
+
   prefix: {{ etcd_prefix | default("/apisix") }}
   timeout: {{ etcd_timeout | default(30) }}
   resync_delay: {{ etcd_resync_delay | default(5) | int }}
   health_check_timeout: {{ etcd_health_check_timeout | default(10) | int }}
-  user: {{ etcd_user | default("tapisix") }}
+  user: {{ etcd_user | default("apisix") }}
   password: {{ etcd_password | default("") }}
   tls:
     verify:  {{ etcd_tls_verify | default("false") }}
